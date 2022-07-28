@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   CalculateValue,
   numberFormatter,
   Currency,
   calculateValues,
 } from "../helpers/calculate";
+import { countries } from "../helpers/scales";
 import {
   Button,
   TextField,
@@ -44,6 +45,9 @@ const TableItem = ({ title, value }: { title: string; value: string }) => (
 
 export default function Index() {
   const [value, setValue] = useState<string>("0");
+  const [currentCountry, setCurrentCountry] = useState<string>(
+    countries[0].code
+  );
   const [calculatedValues, setCalculatedValues] =
     useState<CalculateValue | null>(null);
   const [currency, setCurrency] = useState<Currency>(Currency.EUR);
@@ -66,7 +70,7 @@ export default function Index() {
     } catch (e) {}
   };
 
-  const calculate = () => {
+  const calculate = useCallback(() => {
     const currentValue = Number(value);
 
     if (currentValue === 0) {
@@ -89,10 +93,10 @@ export default function Index() {
     }
 
     const grossAmount = currentValue * multiplier;
-    const values = calculateValues(grossAmount);
+    const values = calculateValues(currentCountry, grossAmount);
 
     setCalculatedValues(values);
-  };
+  }, [currentCountry, exchange, value]);
 
   const onValueChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -106,8 +110,7 @@ export default function Index() {
     if (calculatedValues) {
       calculate();
     }
-    // eslint-disable-next-line
-  }, [currency]);
+  }, [currency, currentCountry]);
 
   useEffect(() => {
     getExchange();
@@ -129,9 +132,6 @@ export default function Index() {
           textAlign: "center",
         }}
       >
-        <span role="img" aria-label="Spain flag">
-          🇪🇸
-        </span>{" "}
         IRFP Calculator
       </Box>
       <Box
@@ -142,6 +142,39 @@ export default function Index() {
         }}
       >
         Input your gross income in EUR, GBP or USD
+      </Box>
+
+      <Box
+        sx={{
+          display: "grid",
+          width: 300,
+          m: "0 auto",
+          mt: 3,
+        }}
+      >
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Country</FormLabel>
+          <Box>
+            {countries.map((country) => (
+              <button
+                key={country.code}
+                style={{
+                  marginRight: 12,
+                  marginTop: 12,
+                  border: "none",
+                  fontSize: 20,
+                  borderRadius: 12,
+                  padding: 12,
+                  backgroundColor:
+                    currentCountry === country.code ? undefined : "white",
+                }}
+                onClick={() => setCurrentCountry(country.code)}
+              >
+                {country.flag}
+              </button>
+            ))}
+          </Box>
+        </FormControl>
       </Box>
 
       {exchange && (

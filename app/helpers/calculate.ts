@@ -1,43 +1,24 @@
-// const scales = [
-//   { percentage: 19, from: 0, to: 12450 },
-//   { percentage: 24, from: 12450, to: 20200 },
-//   { percentage: 30, from: 20200, to: 35200 },
-//   { percentage: 37, from: 35200, to: 60000 },
-//   { percentage: 45, from: 60001 }
-// ];
+import scales from "./scales";
 
 const getNetValue = (amount: number, percentage: number) =>
   (percentage * amount) / 100;
 
-const calculate = (amount: number) => {
+const calculate = (country: string, amount: number) => {
   let currentAmount = amount;
-  const values = [];
+  const values: number[] = [];
+  const amounts = scales.get(country);
 
-  if (currentAmount >= 60001) {
-    const calculatedValue = currentAmount - 60000;
-    currentAmount -= calculatedValue;
-    values.push(getNetValue(calculatedValue, 45));
+  if (!amounts) {
+    return 0;
   }
 
-  if (currentAmount > 35200) {
-    const calculatedValue = currentAmount - 35200;
-    currentAmount -= calculatedValue;
-    values.push(getNetValue(calculatedValue, 37));
-  }
-
-  if (currentAmount > 20200) {
-    const calculatedValue = currentAmount - 20200;
-    currentAmount -= calculatedValue;
-    values.push(getNetValue(calculatedValue, 30));
-  }
-
-  if (currentAmount > 12450) {
-    const calculatedValue = currentAmount - 12450;
-    currentAmount -= calculatedValue;
-    values.push(getNetValue(calculatedValue, 24));
-  }
-
-  values.push(getNetValue(currentAmount, 19));
+  amounts.forEach((step) => {
+    if (currentAmount > step.from) {
+      const calculatedValue = currentAmount - step.from;
+      currentAmount -= calculatedValue;
+      values.push(getNetValue(calculatedValue, step.percentage));
+    }
+  });
 
   return amount - values.reduce((prev, curr) => prev + curr, 0);
 };
@@ -82,9 +63,12 @@ export const numberFormatter = (
   });
 };
 
-export const calculateValues = (grossIncome: number): CalculateValue => {
+export const calculateValues = (
+  country: string,
+  grossIncome: number
+): CalculateValue => {
   const grossIncomePerMonth = (grossIncome / 12).toFixed(2);
-  const netIncome = calculate(grossIncome);
+  const netIncome = calculate(country, grossIncome);
   const netIncomePerMonth = (netIncome / 12).toFixed(2);
   const finalPercentage = (100 - (netIncome * 100) / grossIncome).toFixed(2);
 
