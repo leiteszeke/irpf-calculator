@@ -56,11 +56,11 @@ export default function Index() {
   const getExchange = async () => {
     try {
       const { data: dollar } = await axios.get<CurrencyExchange>(
-        `https://free.currconv.com/api/v7/convert?q=USD_EUR,EUR_USD&compact=ultra&apiKey=5d70544a81a372c0b125`
+        `https://free.currconv.com/api/v7/convert?q=USD_EUR,EUR_USD&compact=ultra&apiKey=3d7bdad5e1ef374facd6`
       );
 
       const { data: pound } = await axios.get<CurrencyExchange>(
-        `https://free.currconv.com/api/v7/convert?q=GBP_EUR,EUR_GBP&compact=ultra&apiKey=5d70544a81a372c0b125`
+        `https://free.currconv.com/api/v7/convert?q=GBP_EUR,EUR_GBP&compact=ultra&apiKey=3d7bdad5e1ef374facd6`
       );
 
       setExchange({
